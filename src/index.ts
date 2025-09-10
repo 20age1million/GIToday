@@ -19,18 +19,13 @@ import {
 
 import type { ExecuteFn, LoadedCommands} from "./types/command.js";
 import { loadAllCommands } from "./lib/command-loader.js";
+import { requireEnv } from "./lib/requireEnv.js";
 
 // load env
 dotenv.config();
 
 // get discord token from env
-const token = process.env.DISCORD_TOKEN;
-
-// if token does not exist, error and exit
-if (!token) {
-    console.error("Missing discord token, modify in .env file!");
-    process.exit(1);
-}
+const token = requireEnv("DISCORD_TOKEN");
 
 let commandRoutes = new Map<string, ExecuteFn>();
 let commandDefs: any[] = [];
@@ -91,8 +86,8 @@ client.on(Events.InteractionCreate, async (intereaction) => {
 
 // register all command to guild
 async function registerCommandToGuild() {
-    const clientID = process.env.DISCORD_CLIENT_ID;
-    const guildID = process.env.DISCORD_GUILD_ID;
+    const clientID = requireEnv("DISCORD_CLIENT_ID");
+    const guildID = requireEnv("DISCORD_GUILD_ID");
 
     if (!clientID || !guildID) {
         console.warn("[Warning] Missing CLIENT_ID or GUILD_ID, skip guild registration.");
