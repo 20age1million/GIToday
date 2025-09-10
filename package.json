@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx src/index.ts",
     "register:guild": "node src/register.ts",
     "register:global": "node src/register.ts --global",
     "build": "tsc",

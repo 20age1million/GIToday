@@ -14,75 +14,15 @@ import {
     GatewayIntentBits, // declare which event will bot observer
     type ChatInputCommandInteraction, // collection of input
     REST, // REST
-    Routes
+    Routes,
+    type Interaction
 } from "discord.js";
 
 import type { ExecuteFn, LoadedCommands} from "./types/command.js";
 import { loadAllCommands } from "./lib/command-loader.js";
 import { requireEnv } from "./lib/requireEnv.js";
 
-// load env
-dotenv.config();
-
-// get discord token from env
-const token = requireEnv("DISCORD_TOKEN");
-
-let commandRoutes = new Map<string, ExecuteFn>();
-let commandDefs: any[] = [];
-
-// create bot instance
-const client = new Client({
-    intents: [GatewayIntentBits.Guilds], // minimum need for MVP
-})
-
-// one-time observer to print when bot is logged in
-client.once(Events.ClientReady, (c) => {
-    console.log(`[ready] logged in as ${c.user.tag} (${c.user.id})`);
-});
-
-
-// add observer to react with command
-client.on(Events.InteractionCreate, async (intereaction) => {
-    // if is not slash command, return
-    if (!intereaction.isChatInputCommand()) return;
-
-    // get corresponding function
-    const execute = commandRoutes.get(intereaction.commandName);
-
-    // if command does not exist
-    if (!execute) {
-        const msg = "Invalid command.";
-        // if current interaction is deferred or replied, 
-        if (intereaction.deferred || intereaction.replied) {
-            // then must edit previous reply
-            intereaction.editReply(msg).catch(() => {});
-        }
-        else {
-            // reply to user
-            // ephemeral -> only visible for user who call this command
-            intereaction.reply({content: msg, ephemeral: true}).catch(() => {});
-        }
-        return;
-    }
-
-    // if command is valid
-    try {
-        await execute(intereaction);   
-    } catch (err) {
-        console.error(`[command: ${intereaction.commandName}] falied.`, err);
-        const msg = "Command failed, please contact Benson.";
-        // if current interaction is deferred or replied, 
-        if (intereaction.deferred || intereaction.replied) {
-            // then must edit previous reply
-            await intereaction.editReply(msg).catch(() => {});
-        }
-        else {
-            // reply to user
-            // ephemeral -> only visible for user who call this command
-            await intereaction.reply({content: msg, ephemeral: true}).catch(() => {});
-        }
-    }
-});
+//////////////////////////////////////
 
 // register all command to guild
 async function registerCommandToGuild() {
@@ -112,9 +52,70 @@ async function registerCommandToGuild() {
     }
 }
 
-// login
+// handler input command
+async function commandHandler(interaction: Interaction) {
+    // if is not slash command, return
+    if (!interaction.isChatInputCommand()) return;
+
+    // get corresponding function
+    const execute = commandRoutes.get(interaction.commandName);
+
+    // if command does not exist
+    if (!execute) {
+        const msg = "Invalid command.";
+        // if current interaction is deferred or replied, 
+        if (interaction.deferred || interaction.replied) {
+            // then must edit previous reply
+            interaction.editReply(msg).catch(() => {});
+        }
+        else {
+            // reply to user
+            // ephemeral -> only visible for user who call this command
+            interaction.reply({content: msg, ephemeral: true}).catch(() => {});
+        }
+        return;
+    }
+
+    // if command is valid
+    try {
+        await execute(interaction);   
+    } catch (err) {
+        console.error(`[command: ${interaction.commandName}] falied.`, err);
+        const msg = "Command failed, please contact Benson.";
+        // if current interaction is deferred or replied, 
+        if (interaction.deferred || interaction.replied) {
+            // then must edit previous reply
+            await interaction.editReply(msg).catch(() => {});
+        }
+        else {
+            // reply to user
+            // ephemeral -> only visible for user who call this command
+            await interaction.reply({content: msg, ephemeral: true}).catch(() => {});
+        }
+    }
+}
+
+async function shutdownHandler(signal: string) {
+    console.log(`[close] received signal ${signal}`);
+    console.log("[close] logging out...");
+    await client.destroy();
+    setImmediate(() => { process.exit(0); });
+}
+
 // use async so await can be used
-(async () => {
+async function main() {
+    // one-time observer to print when bot is logged in
+    client.once(Events.ClientReady, (c) => {
+        console.log(`[ready] logged in as ${c.user.tag} (${c.user.id})`);
+    });
+
+    // add observer to react with command
+    client.on(Events.InteractionCreate, commandHandler);
+
+    // add observer to react with shutdown
+    process.once("SIGINT", shutdownHandler);
+    process.once("SIGTERM", shutdownHandler);
+
     const loaded = await loadAllCommands();
     commandRoutes = loaded.routes;
     commandDefs = loaded.definitions;
@@ -124,5 +125,21 @@ async function registerCommandToGuild() {
     console.log(`[bootstrap] logging in...`);
     await client.login(token);
     // if succeed, Events.ClientReady is toggled
-})();
+}
 
+///////////////////////////////////
+
+// load env
+dotenv.config();
+// get discord token from env
+const token = requireEnv("DISCORD_TOKEN");
+
+// create bot instance
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds], // minimum need for MVP
+});
+
+let commandRoutes = new Map<string, ExecuteFn>();
+let commandDefs: any[] = [];
+
+main();
