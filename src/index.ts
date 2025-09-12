@@ -15,7 +15,8 @@ import {
     type ChatInputCommandInteraction, // collection of input
     REST, // REST
     Routes,
-    type Interaction
+    type Interaction,
+    MessageFlags,
 } from "discord.js";
 
 import type { ExecuteFn, LoadedCommands} from "./types/command.js";
@@ -71,7 +72,7 @@ async function commandHandler(interaction: Interaction) {
         else {
             // reply to user
             // ephemeral -> only visible for user who call this command
-            interaction.reply({content: msg, ephemeral: true}).catch(() => {});
+            interaction.reply({content: msg, flags: MessageFlags.Ephemeral}).catch(() => {});
         }
         return;
     }
@@ -90,7 +91,7 @@ async function commandHandler(interaction: Interaction) {
         else {
             // reply to user
             // ephemeral -> only visible for user who call this command
-            await interaction.reply({content: msg, ephemeral: true}).catch(() => {});
+            await interaction.reply({content: msg, flags: MessageFlags.Ephemeral}).catch(() => {});
         }
     }
 }
