@@ -1,12 +1,9 @@
 // fetch all repos from github
 
 import { octokit } from "./client.js";
-import type {
-    RepoSummary,
-    ListOptions
-} from "../../types/github.js";
+import type { RepoSummary, ListOptions } from "../../types/github.js";
 
-export async function listOrgRepos(
+async function baseListOrgRepos(
     org: string,
     opts: ListOptions = {}
 ): Promise<RepoSummary[]> {
@@ -43,12 +40,12 @@ export async function listOrgRepos(
     )
 }
 
-export async function safeListOrgRepos (
+export async function listOrgRepos (
     org: string,
     opts: ListOptions = {}
 ): Promise<RepoSummary[]> {
     try {
-        return await listOrgRepos(org, opts);
+        return await baseListOrgRepos(org, opts);
     } catch (err: any) {
         const status = err?.stats;
         const h = err?.response?.headers ?? {};

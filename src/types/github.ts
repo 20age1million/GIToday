@@ -13,7 +13,7 @@ export interface BranchSummary {
     headSha: string;
 }
 
-export interface CommitSummary {
+export interface CommitDetails {
     sha: string;
     authorLogin?: string;
     authorEmail?: string;
@@ -26,7 +26,7 @@ export interface CommitStat {
     total: number;
 }
 
-export interface CommitDetails {
+export interface CommitSummary {
     sha: string;
     authorKey: string;
     stats: CommitStat;
@@ -41,7 +41,8 @@ export interface AuthorAggregate {
 }
 
 export interface TimeWindow {
-    since: string; // (ISO 8601，UTC)
+    // (ISO 8601，UTC)
+    since: string; 
     until: string;
 }
 
@@ -51,4 +52,8 @@ export interface ListOptions {
     includeArchived?:boolean;
     branch?: string;
     author?: string;
+    concurrency?: number;
+    ignoreMerges?: boolean;
+    repoConcurrency?: number;
 }
+
