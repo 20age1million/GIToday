@@ -22,8 +22,8 @@
 import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
-  PermissionFlagsBits,
   MessageFlags,
+  EmbedBuilder,
 } from "discord.js";
 
 // ---- import your helpers/services (adjust the import paths) ----
@@ -215,5 +215,5 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         return;
         }
         await ch.send({ content: message });
-    } 
+    }
 }
