@@ -1,0 +1,47 @@
+# docker-compose.yml  —— Discord Bot（GHCR 拉取版）
+# 说明：Compose v2 推荐使用“Compose Specification”，可以不写 version 字段；旧的 2.x/3.x 已合并到规范中。
+# 参考：Docker 官方 Compose 文件参考。 
+# https://docs.docker.com/reference/compose-file/
+
+services:
+  bot:
+    # 注意：GHCR 镜像名必须全小写（owner/repo/tag 都建议小写）
+    # 参考：GHCR / 容器注册表要求小写命名
+    # 你可以在 CI 里把 OWNER/REPO 转小写再打 Tag。
+    image: ghcr.io/20age1million/gitoday:${TAG:-latest}
+
+    # Discord bot 不对外提供端口，无需端口映射
+    # 你的进程是“主动连出”Discord 网关/API，非被动监听
+    # 参考：Discord bot 不需要端口转发/暴露端口
+    # ports: []  # 留空或直接不写
+
+    # 运行命令（你的镜像里如果已设置 CMD 可不写）
+    command: ["node", "dist/index.js"]
+
+    environment:
+      GITHUB_TOKEN: ${GITHUB_TOKEN?required}
+      GITHUB_ORG: ${GITHUB_ORG?required}
+      DISCORD_TOKEN: ${DISCORD_TOKEN?required}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID?required}
+      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID?required}
+
+    # 日志滚动，避免 json-file 无限膨胀（也可在 daemon.json 里全局配置）
+    # 参考：json-file logging driver 配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # 自动重启策略（容器崩溃或 Docker 重启时）
+    restart: unless-stopped
+
+    # 可选：健康检查（前提是你的应用提供 /healthz 或类似探针）
+    # 若你还没实现健康端点，可以先不写；写了也不会“自动重启 Unhealthy”，
+    # 重启由 restart 策略决定
+    # 参考：healthcheck 字段；以及“不健康不一定自动重启”的讨论
+    # healthcheck:
+    #   test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+    #   interval: 30s
+    #   timeout: 3s
+    #   retries: 3
