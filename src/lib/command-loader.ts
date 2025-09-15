@@ -47,18 +47,63 @@ import type { ExecuteFn, LoadedCommands} from "../types/command.js";
 const isCommandFile = (file: string) =>
   /\.(?:c|m)?js$|\.ts$/i.test(file) && !/\.d\.ts$/i.test(file);
 
-async function walk(dir: string): Promise<string[]> {
+
+const INDEX_CANDIDATES = [
+  "index.ts",
+  "index.js",
+  "index.mjs",
+  "index.cjs",
+];
+
+async function listIndexFilesDeep(dir: string): Promise<string[]> {
   const out: string[] = [];
   const entries = await readdir(dir, { withFileTypes: true });
   for (const e of entries) {
-    const full = path.join(dir, e.name);
-    if (e.isDirectory()) {
-      out.push(...(await walk(full)));
-    } else if (e.isFile() && isCommandFile(e.name)) {
-      out.push(full);
+    if (!e.isDirectory()) continue;
+    const sub = path.join(dir, e.name);
+    // If this subdirectory has an index.* file, collect it
+    for (const fname of INDEX_CANDIDATES) {
+      const p = path.join(sub, fname);
+      if (existsSync(p) && statSync(p).isFile()) {
+        out.push(p);
+        break; // one index.* is enough per directory
+      }
     }
+    // Recurse further to find deeper index.* files
+    out.push(...(await listIndexFilesDeep(sub)));
   }
   return out;
+}
+
+async function listCommandFiles(baseDir: string): Promise<string[]> {
+  const out: string[] = [];
+  const entries = await readdir(baseDir, { withFileTypes: true });
+
+  for (const e of entries) {
+    const full = path.join(baseDir, e.name);
+
+    if (e.isFile()) {
+      // Top-level standalone command files (foo.ts/js)
+      if (isCommandFile(e.name)) out.push(full);
+      continue;
+    }
+
+    if (e.isDirectory()) {
+      // For each immediate subdirectory, load its own index.* if present
+      for (const fname of INDEX_CANDIDATES) {
+        const p = path.join(full, fname);
+        if (existsSync(p) && statSync(p).isFile()) {
+          out.push(p);
+          break; // one index.* per directory
+        }
+      }
+      // And recursively search deeper subdirectories for their index.* files
+      out.push(...(await listIndexFilesDeep(full)));
+    }
+  }
+
+  // De-duplicate just in case
+  return Array.from(new Set(out));
 }
 
 function resolveCommandsDir(): string {
@@ -86,7 +131,7 @@ export async function loadAllCommands(): Promise<LoadedCommands> {
     return { routes, definitions, loadedFiles };
   }
 
-  const files = await walk(baseDir);
+  const files = await listCommandFiles(baseDir);
 
   for (const file of files) {
     try {
