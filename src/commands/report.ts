@@ -28,10 +28,12 @@ import {
 import { isISO8601String, relativeToWindowISO } from "../lib/time.js"; // you implement
 import { collectRepoReport } from "../lib/github/report-repo.js";       
 import { collectOrgReport } from "../lib/github/report-org.js";   
-import type { ListOptions, RepoSummary, TimeWindow } from "../types/github.js";       
+import type { AuthorAggregate, ListOptions, RepoSummary, TimeWindow } from "../types/github.js";       
 import { requireEnv } from "../lib/requireEnv.js";
-import { formatLeaderboard } from "../lib/github/formatLeaderboard.js";
+import { formatLeaderboard } from "../lib/formatters/formatLeaderboard.js";
 import { listOrgRepos } from "../lib/github/repos.js";
+import { convertAuth, mergeSameNamesInAuthAgg, removeAuthAggByBlackList } from "../lib/convertAuth.js";
+import { verifyRepo } from "../lib/verifiers/verifyRepo.js";
 
 export const data = new SlashCommandBuilder()
   .setName("report")
@@ -170,10 +172,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     try {
         if (repo) {
-            title += (repo + ' ');
-            const repos = await listOrgRepos(orgName, opts)
-            const repoNames = repos.map((rs: RepoSummary) => rs.name); 
-            if (!repoNames.includes(repo)) {
+            title += (repo + ' '); 
+            if (!verifyRepo(orgName, repo)) {
                 throw new Error(`❌ Repo "${repo}" does not exists.`); 
             }
         } else {
@@ -229,6 +229,14 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     } else {
         summary = (await collectOrgReport(orgName, window, opts)).summary;
     }
+
+    // map to same name
+    summary.map((aa: AuthorAggregate) => {
+        aa.authorKey = convertAuth(aa.authorKey);
+        return aa;
+    });
+    summary = mergeSameNamesInAuthAgg(summary);
+    summary = removeAuthAggByBlackList(summary);
 
     if (!summary.length) {
         message =`No commits in \`${repo ?? orgName}\` within \`${displayedTime}\`.`;
