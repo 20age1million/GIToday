@@ -1,6 +1,7 @@
 import { CronJob, CronTime } from 'cron';
 
 import type { GuildScheduleConfig } from '../types/schedule.js';
+import { existsSync } from 'node:fs';
 
 type JobInfo = { job: CronJob, running: boolean};
 type JobMap = Map<string, JobInfo>;
@@ -31,9 +32,10 @@ export class Scheduler {
         const expr = this.buildCronExpr(cfg.time);
         const existing = this.jobs.get(guildId);
 
-        // if this guild has a job, only update time
+        // if this guild has a job, update it
         if (existing) {
             existing.job.setTime(new CronTime(expr, cfg.timeZone));
+
             if (cfg.enabled && !existing.running) existing.job.start();
             if (!cfg.enabled && existing.running) existing.job.stop();
             return;
@@ -42,8 +44,13 @@ export class Scheduler {
         // otherwise, create a new job
         const job = new CronJob(
             expr,
-            async () => {
-                await this.onTickSend(guildId, cfg.channelId);
+            async () => {const latest = await this.getConfig(guildId);
+                const cid = latest?.channelId;
+                if (!cid || !latest?.enabled) {
+                    console.log(`Skipping scheduled taks for guild ${guildId} because no channelId or not enabled`);
+                    return;
+                }
+                await this.onTickSend(guildId, cid);
             },
             null,
             false,
