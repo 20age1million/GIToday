@@ -83,3 +83,5 @@ Desktop.ini
 # Examples and temp files (kept if needed)
 # =======================================
 !.env.example
+
+config/

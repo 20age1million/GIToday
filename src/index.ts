@@ -22,6 +22,7 @@ import {
 import type { ExecuteFn, LoadedCommands} from "./types/command.js";
 import { loadAllCommands } from "./lib/command-loader.js";
 import { requireEnv } from "./lib/requireEnv.js";
+import { initMessenger, initScheduler } from "./scheduler/index.js";
 
 //////////////////////////////////////
 
@@ -106,8 +107,10 @@ async function shutdownHandler(signal: string) {
 // use async so await can be used
 async function main() {
     // one-time observer to print when bot is logged in
-    client.once(Events.ClientReady, (c) => {
+    client.once(Events.ClientReady, async (c) => {
         console.log(`[ready] logged in as ${c.user.tag} (${c.user.id})`);
+        initMessenger(client);
+        await initScheduler();
     });
 
     // add observer to react with command

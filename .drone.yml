@@ -110,6 +110,8 @@ steps:
         from_secret: DISCORD_CLIENT_ID
       DISCORD_GUILD_ID:
         from_secret: DISCORD_GUILD_ID
+      ROOT:
+        from_secret: ROOT
 
       TAG: "latest"            # CHANGE to "${DRONE_COMMIT_SHA}" for pinned deploys
       COMPOSE_SUBDIR: ""       # CHANGE if your compose lives in a subfolder (e.g., "deploy")

@@ -4,6 +4,14 @@
 # https://docs.docker.com/reference/compose-file/
 
 services:
+  init:
+    image: ghcr.io/20age1million/gitoday:${TAG:-latest}
+
+    environment:
+      ROOT: ${ROOT?required}
+    # init first
+    command: ["node", "init.js"]
+
   bot:
     # 注意：GHCR 镜像名必须全小写（owner/repo/tag 都建议小写）
     # 参考：GHCR / 容器注册表要求小写命名
@@ -24,6 +32,7 @@ services:
       DISCORD_TOKEN: ${DISCORD_TOKEN?required}
       DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID?required}
       DISCORD_GUILD_ID: ${DISCORD_GUILD_ID?required}
+      ROOT: ${ROOT?required}
 
     # 日志滚动，避免 json-file 无限膨胀（也可在 daemon.json 里全局配置）
     # 参考：json-file logging driver 配置
