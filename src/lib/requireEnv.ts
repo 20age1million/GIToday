@@ -2,6 +2,6 @@
 
 export function requireEnv(name :string) {
     const res = process.env[name];
-    if (!res) throw new Error("[Error] .env is missing info");
+    if (!res) throw new Error(`[Error] .env is missing info: ${name}`);
     return res;
 }

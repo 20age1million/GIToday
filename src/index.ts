@@ -5,8 +5,7 @@
 // Client is a bot
 
 
-// use .env to store
-import dotenv from "dotenv";
+import 'dotenv/config'; // Load environment variables first
 
 import {
     Client, // the bot itself
@@ -133,8 +132,6 @@ async function main() {
 
 ///////////////////////////////////
 
-// load env
-dotenv.config();
 // get discord token from env
 const token = requireEnv("DISCORD_TOKEN");
 

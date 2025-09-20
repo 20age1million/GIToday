@@ -3,6 +3,7 @@
 
 import { Octokit } from "octokit";
 import { requireEnv } from "../requireEnv.js";
+import dotenv from "dotenv";
 
 const token = requireEnv("GITHUB_TOKEN");
 
