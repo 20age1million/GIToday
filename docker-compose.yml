@@ -4,14 +4,6 @@
 # https://docs.docker.com/reference/compose-file/
 
 services:
-  init:
-    image: ghcr.io/20age1million/gitoday:${TAG:-latest}
-
-    environment:
-      ROOT: ${ROOT?required}
-    # init first
-    command: ["node", "init.js"]
-
   bot:
     # 注意：GHCR 镜像名必须全小写（owner/repo/tag 都建议小写）
     # 参考：GHCR / 容器注册表要求小写命名
