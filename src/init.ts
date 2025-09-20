@@ -1,9 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { requireEnv } from "./lib/requireEnv.js";
-import dotenv from "dotenv"
-
-dotenv.config();
 
 // 你可以把这些移动到配置文件或环境量
 const ROOT = path.resolve(process.cwd(), "./");  
