@@ -6,8 +6,7 @@ import dotenv from "dotenv"
 dotenv.config();
 
 // 你可以把这些移动到配置文件或环境量
-const rawROOT = requireEnv("ROOT");
-const ROOT = path.resolve(process.cwd(), rawROOT);  
+const ROOT = path.resolve(process.cwd(), "./");  
 const REQUIRED_DIRS = [
   path.join(ROOT, "config"),        // 持久运行时配置（JSON 等）
 //   path.join(ROOT, "logs"),          // 日志目录
