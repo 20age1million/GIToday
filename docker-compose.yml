@@ -4,11 +4,16 @@
 # https://docs.docker.com/reference/compose-file/
 
 services:
-  bot:
+  gitoday-bot:
     # 注意：GHCR 镜像名必须全小写（owner/repo/tag 都建议小写）
     # 参考：GHCR / 容器注册表要求小写命名
     # 你可以在 CI 里把 OWNER/REPO 转小写再打 Tag。
     image: ghcr.io/20age1million/gitoday:${TAG:-latest}
+
+    container_name: gitoday
+
+    volumes:
+      - gitoday_config:/app/config
 
     # Discord bot 不对外提供端口，无需端口映射
     # 你的进程是“主动连出”Discord 网关/API，非被动监听
@@ -46,3 +51,8 @@ services:
     #   interval: 30s
     #   timeout: 3s
     #   retries: 3
+
+volumes:
+  gitoday_config:
+    # 默认 local 驱动；你也可以加 driver/options
+    driver: local

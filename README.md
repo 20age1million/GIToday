@@ -1,78 +1,27 @@
-# GIToday
+# Gitoday Bot
 
-**A Discord bot to report GitHub organization commit statistics.**
-
----
-
-## Table of Contents
-
-- [GIToday](#gitoday)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-  - [Requirements](#requirements)
-  - [Usage](#usage)
-  - [Configuration](#configuration)
-  - [Deployment](#deployment)
-
----
+Gitoday Bot is a Discord bot to streamline server automation with slash commands, scheduled messages, configuration through commands, and robust handling of runtime configuration. This bot supports features like setting/dynamic scheduling, timezone/channel configuration, message reporting, customizable status/activity, and more.
 
 ## Features
 
-- Slash-command `/report` to generate commit activity reports for a GitHub organization or single repo  
-- Supports relative time windows (e.g. `7d`, `24h`) and absolute windows via ISO8601 timestamps  
-- Outputs leaderboard of commit lines added (and optionally deleted/total) per contributor  
-- HTML embed or message output formatted nicely for Discord  
-- Time window cap: up to **90 days** to avoid performance issues  
+- /ls commands: list repos / branches / people in GitHub organization  
+- /schedule: configure scheduled messages per guild (time, timezone, channel, enable/disable)  
+- Report functionality, hello/echo/simple text commands  
+- Persistent configuration with fallback & safe updates  
+- Bot presence/status customization  
 
----
 
-## Requirements
+## Documentation
 
-- Node.js (v24 or later recommended)  
-- A GitHub Personal Access Token (PAT) with permissions to read from the organization and its repos  
-- A Discord Bot Token, with appropriate permissions to send messages, use slash commands, etc.  
-- Environment variables configured (see [Configuration](#configuration))  
+Full documentation, command usage, design details, deployment steps, maintenance & contact info are available on Notion:  
+[Gitoday Bot Docs](https://www.notion.so/26814c20084180d5bb54faf3e15976eb?v=27614c200841807db48b000ce8fb592e&source=copy_link)
 
----
 
-## Usage
+## Contact
 
-Once configured, you can use commands like:
+For issues, questions or contributions, please reach out:
 
-| Command | Description |
-|---|---|
-| `/report` | Reports commit stats for org, default last 1 day |
-| `/report rel=7d` | Last 7 days for org |
-| `/report since=2025-09-01 until=2025-09-10` | Absolute window |
-| `/report repo=my-repo rel=24h` | Last 24h for a specific repo |
+- Owner / Maintainer: Benson
+- Discord: tractorbenson
+- Email: bensonxiao0721@gmail.com
 
-Example output:  
-> Org Total · last 7d  
-> 1. **Alice** · `add: 1234`  
-> 2. **Bob** · `add: 432`  
-
----
-
-## Configuration
-
-You need a `.env` file or environment variables with the following keys:
-
-| Variable | Description |
-|---|---|
-| `DISCORD_TOKEN` | Your Discord bot token |
-| `GITHUB_TOKEN` | GitHub PAT with read permissions |
-| `GITHUB_ORG` | Your GitHub organization name |
-| `GUILD_ID` | (Optional) Discord Guild ID to register commands for testing |
-| (other vars as needed) | — |
-
-Also configure `tsconfig.json`, `.gitignore`, etc., as per project settings.
-
----
-
-## Deployment
-
-Steps to deploy:
-
-1. Install dependencies:  
-   ```bash
-   npm install

@@ -16,6 +16,7 @@ import {
     Routes,
     type Interaction,
     MessageFlags,
+    ActivityType,
 } from "discord.js";
 
 import type { ExecuteFn, LoadedCommands} from "./types/command.js";
@@ -110,6 +111,16 @@ async function main() {
         console.log(`[ready] logged in as ${c.user.tag} (${c.user.id})`);
         initMessenger(client);
         await initScheduler();
+
+        client.user?.setPresence({
+            status: 'online',
+            activities: [
+                {
+                    name: "Codeing today?",
+                    type: ActivityType.Custom
+                }
+            ]
+        });
     });
 
     // add observer to react with command

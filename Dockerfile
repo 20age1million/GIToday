@@ -27,6 +27,8 @@ RUN npm ci --omit=dev
 # 仅拷贝编译产物
 COPY --from=build /app/dist ./dist
 
+RUN mkdir -p /app/config
+
 RUN node ./dist/init.js
 
 # 可选：将默认用户切到非 root（官方 node 镜像内置 "node" 用户）
