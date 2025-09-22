@@ -116,7 +116,7 @@ async function main() {
             status: 'online',
             activities: [
                 {
-                    name: "Codeing today?",
+                    name: "Coding today?",
                     type: ActivityType.Custom
                 }
             ]

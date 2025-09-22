@@ -22,7 +22,7 @@ const REQUIRED_FILES: FileSpec[] = [
   },
   {
     filePath: path.join(ROOT, "config", "people_blacklist.json"),
-    defaultContent: JSON.stringify({}, null, 2) + "\n",
+    defaultContent: JSON.stringify([], null, 2) + "\n",
   },
   {
     filePath: path.join(ROOT, "config", "schedule-task.json"),
@@ -73,4 +73,3 @@ main().catch((e) => {
   process.exit(1);
 });
 
-process.exit(0);
