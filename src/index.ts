@@ -109,8 +109,6 @@ async function main() {
     // one-time observer to print when bot is logged in
     client.once(Events.ClientReady, async (c) => {
         console.log(`[ready] logged in as ${c.user.tag} (${c.user.id})`);
-        initMessenger(client);
-        await initScheduler();
 
         client.user?.setPresence({
             status: 'online',
@@ -150,6 +148,9 @@ const token = requireEnv("DISCORD_TOKEN");
 const client = new Client({
     intents: [GatewayIntentBits.Guilds], // minimum need for MVP
 });
+
+const messenger = initMessenger(client);
+const scheduler = await initScheduler(client);
 
 let commandRoutes = new Map<string, ExecuteFn>();
 let commandDefs: any[] = [];

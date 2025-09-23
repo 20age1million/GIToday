@@ -2,6 +2,8 @@ import { CronJob, CronTime } from 'cron';
 
 import type { GuildScheduleConfig } from '../types/schedule.js';
 import { existsSync } from 'node:fs';
+import type { Client } from 'discord.js';
+import { listGuildIds } from './storage-json.js';
 
 type JobInfo = { job: CronJob, running: boolean};
 type JobMap = Map<string, JobInfo>;
@@ -18,7 +20,14 @@ export class Scheduler {
         private readonly setConfig: (guildId: string, patch: Partial<GuildScheduleConfig>) => Promise<void>,
         // really function that called at time
         private readonly onTickSend: (guildId: string, channelId: string) => Promise<void>,
+
+        private readonly client: Client, 
     ) {}
+
+    async init() {
+        const guildIds = await listGuildIds();
+        await this.reloadAll(guildIds);
+    }
 
     private buildCronExpr(hhmm: string) {
         const [h, m] = hhmm.split(':').map(Number);

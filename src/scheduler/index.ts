@@ -2,7 +2,7 @@
 import { Scheduler } from './schedule.js';
 import { getConfig, saveConfig, listGuildIds } from './storage-json.js';
 import { Messenger } from './messenger.js';
-import type { Client } from 'discord.js';
+import { Client } from 'discord.js';
 import { collectOrgReport } from '../lib/github/report-org.js';
 import { relativeToWindowISO } from '../lib/time.js';
 import { requireEnv } from '../lib/requireEnv.js';
@@ -19,7 +19,10 @@ export function initMessenger(client: Client) {
 }
 
 // 创建 scheduler 实例
-const scheduler = new Scheduler(getConfig, saveConfig, async (guildId: string, channelId: string) => {
+
+
+export async function initScheduler(client: Client): Promise<Scheduler> {
+  const scheduler = new Scheduler(getConfig, saveConfig, async (guildId: string, channelId: string) => {
 
     if (!messenger) {
       throw new Error('Messenger not initialized');
@@ -29,11 +32,12 @@ const scheduler = new Scheduler(getConfig, saveConfig, async (guildId: string, c
 
     let summary = (await collectOrgReport(orgName, relativeToWindowISO("1d"))).summary
 
-    // map to same name
-    summary.map(async (aa: AuthorAggregate) => {
-        aa.authorKey = await convertAuth(aa.authorKey);
+    
+      // map to same name
+    summary = await Promise.all(summary.map(async (aa: AuthorAggregate) => {
+        aa.authorKey = await convertAuth(client, aa.authorKey, await client.guilds.fetch(guildId) ?? undefined);
         return aa;
-    });
+    }));
     summary = mergeSameNamesInAuthAgg(summary);
     summary = await removeAuthAggByBlackList(summary);
 
@@ -46,11 +50,7 @@ const scheduler = new Scheduler(getConfig, saveConfig, async (guildId: string, c
         message = formatLeaderboard(summary, { title: title});
     }
     await messenger.send(channelId, message);
-});
+}, client);
 
-export async function initScheduler() {
-  const guildIds = await listGuildIds();
-  await scheduler.reloadAll(guildIds);
+  return scheduler;
 }
-
-export { scheduler };
