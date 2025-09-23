@@ -1,8 +1,9 @@
 import type { AuthorAggregate } from "../../types/github.js";
 import { getMap } from "./map.js";
 import { getBlacklist } from "./blacklist.js";
+import type { Client, Guild } from "discord.js";
 
-export async function convertAuth(auth: string): Promise<string> {
+export async function convertAuth(client: Client, auth: string, guild?: Guild): Promise<string> {
     const map = await getMap();
     if (!map) {
         console.log("[convertAuth] No map found, returning original auth");
@@ -13,10 +14,19 @@ export async function convertAuth(auth: string): Promise<string> {
         const mappedValue = map.get(auth);
         if (mappedValue !== undefined) {
             auth = mappedValue;
-        }
+
+            const username = await getUserName(client, guild, mappedValue);
+            if (username) {
+                auth = username;
+            } else {
+                console.log(`[convertAuth] Failed to get username for ${mappedValue}, using mapped value`);
+            }
+        }        
+
     } else {
-        console.log(`[convertAuth] No mapping for ${auth}, returning original`);
+        console.log(`[convertAuth] No stored mapping for ${auth}, returning original`);
     }
+
     return auth; 
 }
 
@@ -65,4 +75,32 @@ export async function removeArrayByBlackList(arr: string[]): Promise<string[]> {
 
     const filtered = arr.filter(item => !blacklist.includes(item));
     return filtered
+}
+
+async function getUserName(client: Client, guild: Guild | undefined, userId: string): Promise<string> {
+  // 首先 try 从 guild.members.cache 里拿
+  let member;
+
+  if (guild) {
+    try {
+        member = await guild.members.fetch(userId);
+    } catch (err) {
+        // 用户可能不在这个服务器，或者权限/intent 不足
+        member = undefined;
+    }
+  }
+
+  if (member) {
+    // displayName 在 discord.js 表示 nickname 或 username fallback
+    return member.displayName;  
+  } else {
+    // fallback：全局用户
+    try {
+      const user = await client.users.fetch(userId);
+      return user.username;  
+    } catch (err) {
+      console.log(`[getUserName] Failed to fetch user ${userId}: ${err}`);
+      return userId; // 或 “Unknown User”
+    }
+  }
 }

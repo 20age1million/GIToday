@@ -57,7 +57,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   if (!interaction.guildId) {
     await interaction.reply({
       content: "❌ This command must be used in a server (guild).",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral, 
     });
     return;
   }
@@ -154,5 +154,5 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   }
 
   // Unknown subcommand fallback
-  await interaction.reply({ content: "Unknown subcommand.", ephemeral: true });
+  await interaction.reply({ content: "Unknown subcommand.", flags: MessageFlags.Ephemeral });
 }

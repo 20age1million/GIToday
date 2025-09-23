@@ -231,10 +231,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     }
 
     // map to same name
-    summary.map(async (aa: AuthorAggregate) => {
-        aa.authorKey = await convertAuth(aa.authorKey);
+    summary = await Promise.all(summary.map(async (aa: AuthorAggregate) => {
+        aa.authorKey = await convertAuth(interaction.client, aa.authorKey, interaction.guild ?? undefined);
         return aa;
-    });
+    }));
+    
     summary = mergeSameNamesInAuthAgg(summary);
     summary = await removeAuthAggByBlackList(summary);
 

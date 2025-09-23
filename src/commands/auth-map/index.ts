@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js"
+import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from "discord.js"
 import { data as addData, execute as addExe} from "./handler/add.js"
 import { data as showData, execute as showExe} from "./handler/show.js"
 import { data as removeData, execute as removeExe } from "./handler/remove.js"
@@ -19,6 +19,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     } else if (interaction.options.getSubcommand() === "remove") {
         await removeExe(interaction);
     } else {
-        await interaction.reply({ content: "Unknown subcommand", ephemeral: true });
+        await interaction.reply({ content: "Unknown subcommand", flags: MessageFlags.Ephemeral });
     }
 }

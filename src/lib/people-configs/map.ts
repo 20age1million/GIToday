@@ -59,5 +59,12 @@ export async function appendMap(key: string, value: string): Promise<Boolean> {
 
 export async function removeFromMap(key: string): Promise<Boolean> {
     const map = await getMap();
-    return map.delete(key);
+    if (map.has(key)) {
+        map.delete(key);
+        const obj = Object.fromEntries(map);
+        await fs.writeFile(MAP_FILE, JSON.stringify(obj, null, 2) + "\n");
+        return true;
+    } else {
+        return false;
+    }
 }

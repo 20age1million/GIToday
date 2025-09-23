@@ -37,6 +37,8 @@ export function formatLeaderboard(
     safeBudget,
   } = { ...DEFAULTS, ...opts };
 
+  // console.log(rows);
+
   const title = opts.title?.trim();
   const take = Math.max(1, top);
 

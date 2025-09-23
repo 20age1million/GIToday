@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, type ChatInputApplicationCommandData } from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandBuilder, MessageFlags } from 'discord.js';
 
 import { data as addSubcommand, execute as addHandler } from './handlers/add.js';
 import { data as removeSubcommand, execute as removeHandler } from './handlers/remove.js';
@@ -33,6 +33,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
             }
             break;
         default:
-            await interaction.reply({ content: 'Unknown subcommand', ephemeral: true });
+            await interaction.reply({ content: 'Unknown subcommand', flags: MessageFlags.Ephemeral });
     }
 }
