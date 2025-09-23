@@ -150,7 +150,7 @@ const client = new Client({
 });
 
 const messenger = initMessenger(client);
-const scheduler = await initScheduler(client);
+export const scheduler = await initScheduler(client);
 
 let commandRoutes = new Map<string, ExecuteFn>();
 let commandDefs: any[] = [];

@@ -18,9 +18,6 @@ export function initMessenger(client: Client) {
   messenger = new Messenger(client);
 }
 
-// 创建 scheduler 实例
-
-
 export async function initScheduler(client: Client): Promise<Scheduler> {
   const scheduler = new Scheduler(getConfig, saveConfig, async (guildId: string, channelId: string) => {
 

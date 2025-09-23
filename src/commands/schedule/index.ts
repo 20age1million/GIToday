@@ -9,7 +9,7 @@ import {
     ChannelType
 } from "discord.js";
 
-import { scheduler } from "../../scheduler/index.js";
+import { scheduler } from "../../index.js";
 import { getConfig } from "../../scheduler/storage-json.js";
 
 export const data = new SlashCommandBuilder()
