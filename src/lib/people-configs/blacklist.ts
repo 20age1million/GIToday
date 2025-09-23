@@ -1,5 +1,5 @@
 import { promises as fs } from 'node:fs';
-import path, { resolve } from 'node:path';
+import path from 'node:path';
 
 const RAW_ROOT = process.env.ROOT ?? ".";
 const ROOT = path.resolve(process.cwd(), RAW_ROOT);

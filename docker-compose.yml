@@ -12,8 +12,8 @@ services:
 
     container_name: gitoday
 
-    # volumes:
-    #   - gitoday_config:/app/config
+    volumes:
+      - gitoday_config:/app/config
 
     # Discord bot 不对外提供端口，无需端口映射
     # 你的进程是“主动连出”Discord 网关/API，非被动监听
@@ -52,7 +52,7 @@ services:
     #   timeout: 3s
     #   retries: 3
 
-# volumes:
-#   gitoday_config:
-#     # 默认 local 驱动；你也可以加 driver/options
-#     driver: local
+volumes:
+  gitoday_config:
+    # 默认 local 驱动；你也可以加 driver/options
+    driver: local

@@ -7,7 +7,7 @@ import { collectOrgReport } from '../lib/github/report-org.js';
 import { relativeToWindowISO } from '../lib/time.js';
 import { requireEnv } from '../lib/requireEnv.js';
 import type { AuthorAggregate } from '../types/github.js';
-import { convertAuth, mergeSameNamesInAuthAgg, removeAuthAggByBlackList} from '../lib/convertAuth.js';
+import { convertAuth, mergeSameNamesInAuthAgg, removeAuthAggByBlackList} from '../lib/people-configs/convertAuth.js';
 import { formatLeaderboard } from '../lib/formatters/formatLeaderboard.js';
 
 // 你需要在某处传入你的 discord.js Client 实例
@@ -30,12 +30,12 @@ const scheduler = new Scheduler(getConfig, saveConfig, async (guildId: string, c
     let summary = (await collectOrgReport(orgName, relativeToWindowISO("1d"))).summary
 
     // map to same name
-    summary.map((aa: AuthorAggregate) => {
-        aa.authorKey = convertAuth(aa.authorKey);
+    summary.map(async (aa: AuthorAggregate) => {
+        aa.authorKey = await convertAuth(aa.authorKey);
         return aa;
     });
     summary = mergeSameNamesInAuthAgg(summary);
-    summary = removeAuthAggByBlackList(summary);
+    summary = await removeAuthAggByBlackList(summary);
 
     let message: string;
     const title = `🏆 Daily Leaderboard for ${orgName} - `;

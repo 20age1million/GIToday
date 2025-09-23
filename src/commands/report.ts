@@ -32,7 +32,7 @@ import type { AuthorAggregate, ListOptions, RepoSummary, TimeWindow } from "../t
 import { requireEnv } from "../lib/requireEnv.js";
 import { formatLeaderboard } from "../lib/formatters/formatLeaderboard.js";
 import { listOrgRepos } from "../lib/github/repos.js";
-import { convertAuth, mergeSameNamesInAuthAgg, removeAuthAggByBlackList } from "../lib/convertAuth.js";
+import { convertAuth, mergeSameNamesInAuthAgg, removeAuthAggByBlackList } from "../lib/people-configs/convertAuth.js";
 import { verifyRepo } from "../lib/verifiers/verifyRepo.js";
 
 export const data = new SlashCommandBuilder()
@@ -231,12 +231,12 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     }
 
     // map to same name
-    summary.map((aa: AuthorAggregate) => {
-        aa.authorKey = convertAuth(aa.authorKey);
+    summary.map(async (aa: AuthorAggregate) => {
+        aa.authorKey = await convertAuth(aa.authorKey);
         return aa;
     });
     summary = mergeSameNamesInAuthAgg(summary);
-    summary = removeAuthAggByBlackList(summary);
+    summary = await removeAuthAggByBlackList(summary);
 
     if (!summary.length) {
         message =`No commits in \`${repo ?? orgName}\` within \`${displayedTime}\`.`;
