@@ -51,7 +51,7 @@ async function ensureFile(spec: FileSpec) {
   }
 }
 
-async function main() {
+export async function init() {
   console.log("[init] start bootstrap…");
 
   // 1) 目录
@@ -68,8 +68,3 @@ async function main() {
 }
 
 // 独立执行
-main().catch((e) => {
-  console.error("[init] failed:", e);
-  process.exit(1);
-});
-

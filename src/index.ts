@@ -24,6 +24,8 @@ import { loadAllCommands } from "./lib/command-loader.js";
 import { requireEnv } from "./lib/requireEnv.js";
 import { initMessenger, initScheduler } from "./scheduler/index.js";
 
+import { init } from './init.js';
+
 //////////////////////////////////////
 
 // register all command to guild
@@ -140,6 +142,11 @@ async function main() {
 }
 
 ///////////////////////////////////
+
+init().catch((e) => {
+  console.error("[init] failed:", e);
+  process.exit(1);
+});
 
 // get discord token from env
 const token = requireEnv("DISCORD_TOKEN");
