@@ -19,9 +19,9 @@ import {
     ActivityType,
 } from "discord.js";
 
-import type { ExecuteFn, LoadedCommands} from "./types/command.js";
+import type { ExecuteFn, LoadedCommands} from "./shared/types/command.js";
 import { loadAllCommands } from "./lib/command-loader.js";
-import { requireEnv } from "./lib/requireEnv.js";
+import { requireEnv } from "./infrastructure/env/requireEnv.js";
 import { initMessenger, initScheduler } from "./scheduler/index.js";
 
 import { init } from './init.js';
