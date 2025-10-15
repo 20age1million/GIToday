@@ -6,6 +6,7 @@ import type {
     SlashCommandBuilder,
     SlashCommandOptionsOnlyBuilder,
     SlashCommandSubcommandBuilder,
+    SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
 
 /**
@@ -41,6 +42,11 @@ export type LoadedCommands = {
 };
 
 export type Command = {
-  data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandBuilder;
+  data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder;
+  execute: ExecuteFn;
+}
+
+export type SubCommand = {
+  data: ((sub: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder);
   execute: ExecuteFn;
 }

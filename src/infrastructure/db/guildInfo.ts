@@ -72,16 +72,23 @@ export class GuildInfo {
     }
 
     public static async setGitInfo(guildID: string, gitInfo: GuildInfoSection): Promise<void> {
-        const info = await this.get(guildID);
-        info.set('git', new Map(Object.entries(gitInfo)));
+        let info = await this.get(guildID);
+        let resultGitInfo = info.get('git')!;
+
+        for (const [key, value] of Object.entries(gitInfo)) {
+            resultGitInfo.set(key, value);
+        }
+            
+        info.set('git', resultGitInfo);
         const schema: GuildInfoSchema = {};
         for (const [section, values] of info.entries()) {
             schema[section] = Object.fromEntries(values);
         }
+
         await this.set(guildID, schema);
     }
 
-    public static async reportInfoComplete(guildID: string): Promise<boolean> {
+    public static async infoComplete(guildID: string): Promise<boolean> {
         try {
             const gitInfo = await this.getGitInfo(guildID);
             if (!gitInfo.platform || !gitInfo.authMethod || !gitInfo.key || !gitInfo.org) {

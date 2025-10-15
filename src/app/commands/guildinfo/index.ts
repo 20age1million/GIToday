@@ -1,30 +1,25 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, MessageFlags } from 'discord.js';
 
-import { command as add } from './handlers/add.js';
-import { command as remove } from './handlers/remove.js';
 import { command as show } from './handlers/show.js';
+import { command as set } from './handlers/set.js';
 
-export const data = new SlashCommandBuilder()
-    .setName('blacklist')
-    .setDescription('Manage the blacklist of authors to exclude from leaderboards')
-    .addSubcommand(add.data)
-    .addSubcommand(remove.data)
+const data = new SlashCommandBuilder()
+    .setName('guildinfo')
+    .setDescription('Manage the basic info for the guild')
+    .addSubcommand(set.data)
     .addSubcommand(show.data);
 
-export async function execute(interaction: ChatInputCommandInteraction) {
+async function execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.isChatInputCommand()) return;
+
+    await interaction.deferReply( {flags: MessageFlags.Ephemeral} );
 
     const subcommand = interaction.options.getSubcommand();
 
     switch (subcommand) {
-        case 'add':
+        case 'set':
             {
-                await add.execute(interaction);
-            }
-            break;
-        case 'remove':
-            {
-                await remove.execute(interaction);
+                await set.execute(interaction);
             }
             break;
         case 'show':

@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandSubcommandBuilder, MessageFlags} from "discord.js"
-import { getBlacklist } from '../../../lib/people-configs/blacklist.js'
-import { formatList } from "../../../lib/formatters/formatList.js";
+import { Blacklist } from "infrastructure/db/blacklist.js";
+import { Formatter } from "shared/formatters/formatter.js";
+import type { SubCommand } from "shared/types/command.js";
 
 export const data = ((subcommand: SlashCommandSubcommandBuilder) =>
         subcommand
@@ -8,13 +9,15 @@ export const data = ((subcommand: SlashCommandSubcommandBuilder) =>
             .setDescription('List all blacklisted authors'));
 
 export async function execute(interaction: ChatInputCommandInteraction) {
-    const blacklist = await getBlacklist();
+    const blacklist = await Blacklist.get(interaction.guildId!);
     let msg: string;
     if (!blacklist || blacklist.length === 0) {
         msg = 'The blacklist is currently empty.';
     } else {
-        msg = formatList(blacklist, 'Blacklisted Authors:');
+        msg = Formatter.list(blacklist, 'Blacklisted Authors:');
     }
 
     await interaction.reply({content: msg, flags: MessageFlags.Ephemeral});
 }
+
+export const command: SubCommand = { data, execute };

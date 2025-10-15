@@ -1,62 +1,71 @@
-// index.js - main enterance
-
-// terminalogy //
-// Guild is basically a discord server
-// Client is a bot
-
-
-import 'dotenv/config'; // Load environment variables first
+import { Logger } from "infrastructure/log/log.js";
+import { requireEnv } from "infrastructure/env/requireEnv.js";
+import { loadAllCommands } from "app/commands/command-loader.js";
 
 import {
-    Client, // the bot itself
-    Events, // a collection of event name
-    GatewayIntentBits, // declare which event will bot observer
-    type ChatInputCommandInteraction, // collection of input
-    REST, // REST
+    REST, 
     Routes,
     type Interaction,
     MessageFlags,
-    ActivityType,
+    Events,
 } from "discord.js";
 
-import type { ExecuteFn, LoadedCommands} from "./shared/types/command.js";
-import { loadAllCommands } from "./lib/command-loader.js";
-import { requireEnv } from "./infrastructure/env/requireEnv.js";
-import { initMessenger, initScheduler } from "./scheduler/index.js";
-
-import { init } from './init.js';
-
-//////////////////////////////////////
-
-// register all command to guild
-async function registerCommandToGuild() {
-    const clientID = requireEnv("DISCORD_CLIENT_ID");
-    const guildID = requireEnv("DISCORD_GUILD_ID");
-
-    if (!clientID || !guildID) {
-        console.warn("[Warning] Missing CLIENT_ID or GUILD_ID, skip guild registration.");
-        return;
-    }
-
-    if (commandDefs.length === 0) {
-        console.warn("[Warning] No command definitions to register.");
-        return;
-    }
-
-    if (!token) process.exit(1);
-    const rest = new REST({version: "10"}).setToken(token);
-    try {
-        console.log(`Registering ${commandDefs.length} commands to Guild ${guildID}...`);
-        await rest.put(Routes.applicationGuildCommands(clientID, guildID), {
-            body: commandDefs
-        });
-        console.log("Guild command registration done.");
-    } catch (err) {
-    console.error("❌ Guild registration failed:", err);
+export async function registerCommands(){
+    // check if commandline arg
+    const modeArg = process.argv.find(arg => arg.startsWith('--mode='));
+    if (modeArg) {
+        Logger.log("Register Commands", `Starting in mode: ${modeArg}`);
+        const [, val] = modeArg.split('=');
+        if (val === 'dev') {
+            await registerCommandToGuild();
+        } else if (val === 'prod') {
+            await registerCommandToGlobal();
+        } else {
+            Logger.warn("Register Commands", `Unknown mode: ${val}, defaulting to 'dev'`);
+            await registerCommandToGuild();
+        }
+    } else{
+        Logger.warn("Register Commands", `No mode specified, defaulting to 'dev'`);
+        await registerCommandToGuild();
     }
 }
 
-// handler input command
+async function registerCommandToGuild() {
+    const guildID = requireEnv("DISCORD_GUILD_ID");
+
+    if (!guildID) {
+        Logger.error("RegisterCommandToGuild", "Missing GUILD_ID, skip guild registration.");
+        return;
+    }
+
+    const rest = new REST({version: "10"}).setToken(token);
+    try {
+        Logger.log("Register Guild", `Registering ${commandDefs.length} commands to Guild ${guildID}...`);
+        await rest.put(Routes.applicationGuildCommands(clientID, guildID), {
+            body: commandDefs
+        });
+        Logger.log("Register Guild", "Guild command registration done.");
+    } catch (err) {
+        Logger.error("Register Guild", `❌ Guild registration failed: ${err}`);
+    }
+}
+
+async function registerCommandToGlobal() {
+    const rest = new REST({ version: "10" }).setToken(token);
+    try {
+        Logger.log("Register Global", `Registering ${commandDefs.length} commands globally...`);
+        await rest.put(
+        Routes.applicationCommands(clientID),
+            {
+                body: commandDefs,
+            }
+        );
+        Logger.log("Register Global", "Global command registration done.");
+    } catch (err) {
+        Logger.error("Register Global", `❌ Global registration failed: ${err}`);
+    }
+}
+
 async function commandHandler(interaction: Interaction) {
     // if is not slash command, return
     if (!interaction.isChatInputCommand()) return;
@@ -84,7 +93,7 @@ async function commandHandler(interaction: Interaction) {
     try {
         await execute(interaction);   
     } catch (err) {
-        console.error(`[command: ${interaction.commandName}] falied.`, err);
+        Logger.error(`command`, `${interaction.commandName} falied.`);
         const msg = "Command failed, please contact Benson.";
         // if current interaction is deferred or replied, 
         if (interaction.deferred || interaction.replied) {
@@ -100,66 +109,30 @@ async function commandHandler(interaction: Interaction) {
 }
 
 async function shutdownHandler(signal: string) {
-    console.log(`[close] received signal ${signal}`);
-    console.log("[close] logging out...");
+    Logger.log("Close", `received signal ${signal}`);
+    Logger.log("Close", "logging out...");
     await client.destroy();
     setImmediate(() => { process.exit(0); });
 }
 
-// use async so await can be used
-async function main() {
-    // one-time observer to print when bot is logged in
-    client.once(Events.ClientReady, async (c) => {
-        console.log(`[ready] logged in as ${c.user.tag} (${c.user.id})`);
 
-        client.user?.setPresence({
-            status: 'online',
-            activities: [
-                {
-                    name: "Coding today?",
-                    type: ActivityType.Custom
-                }
-            ]
-        });
-    });
+////////////////////////////////////////////////////
+process.once("SIGINT", shutdownHandler);
+process.once("SIGTERM", shutdownHandler);
 
-    // add observer to react with command
-    client.on(Events.InteractionCreate, commandHandler);
+import 'dotenv/config';
+import { client } from "app/discord/client.js";
+import { scheduler } from "app/scheduler/scheduler.js";
 
-    // add observer to react with shutdown
-    process.once("SIGINT", shutdownHandler);
-    process.once("SIGTERM", shutdownHandler);
-
-    const loaded = await loadAllCommands();
-    commandRoutes = loaded.routes;
-    commandDefs = loaded.definitions;
-
-    await registerCommandToGuild();
-
-    console.log(`[bootstrap] logging in...`);
-    await client.login(token);
-    // if succeed, Events.ClientReady is toggled
-}
-
-///////////////////////////////////
-
-init().catch((e) => {
-  console.error("[init] failed:", e);
-  process.exit(1);
-});
-
-// get discord token from env
+const clientID = client.user.id;
 const token = requireEnv("DISCORD_TOKEN");
 
-// create bot instance
-const client = new Client({
-    intents: [GatewayIntentBits.Guilds], // minimum need for MVP
-});
+client.on(Events.InteractionCreate, commandHandler);
 
-const messenger = initMessenger(client);
-export const scheduler = await initScheduler(client);
+const loaded = await loadAllCommands();
+const commandRoutes = loaded.routes;
+const commandDefs = loaded.definitions;
 
-let commandRoutes = new Map<string, ExecuteFn>();
-let commandDefs: any[] = [];
+await registerCommands();
 
-main();
+Logger.log("init", "All initialization done");

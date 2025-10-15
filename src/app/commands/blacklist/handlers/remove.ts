@@ -1,8 +1,9 @@
 import { SlashCommandSubcommandBuilder } from "discord.js"
 import { type ChatInputCommandInteraction } from 'discord.js';
-import { removeFromBlacklist } from "../../../lib/people-configs/blacklist.js";
+import { Blacklist } from "infrastructure/db/blacklist.js";
+import type { SubCommand } from "shared/types/command.js";
 
-export const data = ((subcommand: SlashCommandSubcommandBuilder) =>
+const data = ((subcommand: SlashCommandSubcommandBuilder) =>
         subcommand
             .setName('remove')
             .setDescription('Remove an author from the blacklist')
@@ -11,9 +12,9 @@ export const data = ((subcommand: SlashCommandSubcommandBuilder) =>
                     .setDescription('The author name or email to remove from the blacklist')
                     .setRequired(true)));
 
-export async function execute(interaction: ChatInputCommandInteraction) {
+async function execute(interaction: ChatInputCommandInteraction) {
     const author = interaction.options.getString('author', true);
-    const success = await removeFromBlacklist(author);
+    const success = await Blacklist.remove(interaction.guildId!, author);
     let msg: string;
     if (success) {
         msg = `Removed **${author}** from the blacklist.`;
@@ -22,3 +23,5 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     }
     await interaction.reply({ content: msg, ephemeral: true });
 }
+
+export const command: SubCommand = { data, execute };

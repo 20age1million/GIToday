@@ -1,8 +1,9 @@
 import { SlashCommandSubcommandBuilder, type ChatInputCommandInteraction} from "discord.js"
-import { removeFromMap } from '../../../lib/people-configs/map.js'
+import { AuthMap } from "infrastructure/db/authMap.js";
+import type { SubCommand } from "shared/types/command.js";
 
 
-export const data = ((sub: SlashCommandSubcommandBuilder ) => 
+const data = ((sub: SlashCommandSubcommandBuilder ) => 
     sub
         .setName("remove")
         .setDescription("Remove authentication of a map from your account")
@@ -13,10 +14,10 @@ export const data = ((sub: SlashCommandSubcommandBuilder ) =>
                 .setRequired(true))
 );
 
-export async function execute(interaction: ChatInputCommandInteraction) {
+async function execute(interaction: ChatInputCommandInteraction) {
     const rawID = interaction.options.getString("raw-id", true);
 
-    const success = await removeFromMap(rawID);
+    const success = await AuthMap.remove(interaction.guildId!, rawID);
     let msg: string;
 
     if (success) {
@@ -27,3 +28,5 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     
     await interaction.reply({ content: msg, ephemeral: true });
 }
+
+export const command: SubCommand = { data, execute};

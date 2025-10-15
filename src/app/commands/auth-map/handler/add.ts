@@ -1,7 +1,8 @@
 import type { ChatInputCommandInteraction, SlashCommandSubcommandBuilder } from "discord.js";
-import { appendMap } from '../../../lib/people-configs/map.js'
+import { AuthMap } from "infrastructure/db/authMap.js";
+import type { SubCommand } from "shared/types/command.js";
 
-export const data = ((sub: SlashCommandSubcommandBuilder) => 
+const data = ((sub: SlashCommandSubcommandBuilder) => 
     sub
         .setName("add")
         .setDescription("Authenticate a map to your account")
@@ -19,11 +20,11 @@ export const data = ((sub: SlashCommandSubcommandBuilder) =>
         )
 );
 
-export async function execute(interaction: ChatInputCommandInteraction) {
+async function execute(interaction: ChatInputCommandInteraction) {
     const rawID = interaction.options.getString("raw-id", true);
     const user = interaction.options.getUser("user") ?? interaction.user;
 
-    const success = await appendMap(rawID, user.id);
+    const success = await AuthMap.set(interaction.guildId!, rawID, user.id);
     let msg: string;
 
     if (success) {
@@ -34,3 +35,5 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     await interaction.reply({ content: msg, ephemeral: true });
 }
+
+export const command: SubCommand = { data, execute };

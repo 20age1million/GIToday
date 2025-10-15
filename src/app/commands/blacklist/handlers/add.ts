@@ -1,7 +1,8 @@
 import { SlashCommandSubcommandBuilder, type ChatInputCommandInteraction } from 'discord.js';
-import { appendBlacklist } from '../../../lib/people-configs/blacklist.js';
+import { Blacklist } from 'infrastructure/db/blacklist.js';
+import type { SubCommand } from 'shared/types/command.js';
 
-export const data = ((subcommand: SlashCommandSubcommandBuilder) =>
+const data = ((subcommand: SlashCommandSubcommandBuilder) =>
         subcommand
             .setName('add')
             .setDescription('Add an author to the blacklist')
@@ -9,8 +10,7 @@ export const data = ((subcommand: SlashCommandSubcommandBuilder) =>
                 option.setName('author')
                     .setDescription('The author name or email to blacklist')
                     .setRequired(true)));
-
-export async function execute(interaction: ChatInputCommandInteraction) {
+async function execute(interaction: ChatInputCommandInteraction) {
     const author = interaction.options.getString('author', true).trim();
     if (author.length === 0) {
         await interaction.reply({ content: 'Author name cannot be empty.', ephemeral: true });
@@ -18,7 +18,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     }
 
     let msg: string;
-    const added = await appendBlacklist(author);
+    const added = await Blacklist.add(interaction.guildId!, author);
 
     if (added) {
         msg = `Author "${author}" has been added to the blacklist.`;
@@ -28,3 +28,5 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     await interaction.reply({ content: msg, ephemeral: true });
 }
+
+export const command: SubCommand = { data, execute };

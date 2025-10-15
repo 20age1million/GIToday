@@ -2,6 +2,7 @@ import type { AuthorAggregate } from "../../shared/types/github.js";
 import { AuthMap } from "infrastructure/db/authMap.js";
 import { Blacklist } from "infrastructure/db/blacklist.js";
 import type { Client, Guild } from "discord.js";
+import { Logger } from "infrastructure/log/log.js";
 
 export class ConvertAuth {
     constructor( 
@@ -17,7 +18,7 @@ export class ConvertAuth {
     public async convertAuth(auth: string ): Promise<string> {
         const map = await AuthMap.get(this.guild.id);
         if (!map) {
-            console.log("[convertAuth] No map found, returning original auth");
+            Logger.log("convertAuth", "No map found, returning original auth");
             return auth;
         }
 
@@ -30,12 +31,12 @@ export class ConvertAuth {
                 if (username) {
                     auth = username;
                 } else {
-                    console.log(`[convertAuth] Failed to get username for ${mappedValue}, using mapped value`);
+                    Logger.log(`convertAuth`, `Failed to get username for ${mappedValue}, using mapped value`);
                 }
             }        
 
         } else {
-            console.log(`[convertAuth] No stored mapping for ${auth}, returning original`);
+            Logger.log(`convertAuth`, `No stored mapping for ${auth}, returning original`);
         }
 
         return auth; 
@@ -114,5 +115,23 @@ export class ConvertAuth {
             return userId; // 或 “Unknown User”
             }
         }
+    }
+
+    public async convertAuthAgg(arr: AuthorAggregate[]): Promise<AuthorAggregate[]> {
+        arr = await this.removeAuthAggByBlackList(arr);
+
+        const promises = arr.map(async (item) => {
+            const originalKey = item.authorKey;
+            const convertedKey = await this.convertAuth(originalKey);
+            return {
+                ...item,
+                authorKey: convertedKey,
+            };
+        });
+
+        let convertedArr = await Promise.all(promises);
+
+        convertedArr = this.mergeSameNamesInAuthAgg(convertedArr);
+        return convertedArr;
     }
 }

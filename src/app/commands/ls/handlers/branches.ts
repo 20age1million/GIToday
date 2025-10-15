@@ -2,9 +2,10 @@ import { SlashCommandSubcommandBuilder, type ChatInputCommandInteraction } from 
 import { GitHub } from "infrastructure/github/github.js";
 import type { BranchSummary } from "shared/types/github.js";
 import { Formatter } from "shared/formatters/formatter.js";
-import type { Command } from "shared/types/command.js";
+import type { SubCommand } from "shared/types/command.js";
 
-const data: SlashCommandSubcommandBuilder = new SlashCommandSubcommandBuilder()
+const data = ((sub: SlashCommandSubcommandBuilder) => 
+    sub
     .setName("branches")
     .setDescription("List all branches in a repo")
     .addStringOption((opt) =>
@@ -18,7 +19,7 @@ const data: SlashCommandSubcommandBuilder = new SlashCommandSubcommandBuilder()
             .setName("max")
             .setDescription("Max number of branches to list (default 20)")
             .setRequired(false)
-    );
+    ));
 
 
 async function execute(interaction: ChatInputCommandInteraction) {
@@ -26,6 +27,11 @@ async function execute(interaction: ChatInputCommandInteraction) {
     const max = interaction.options.getInteger("max") ?? 20;
 
     const gh = await GitHub.create(interaction.guildId!);
+
+    if (!gh.verifyRepo(repo)) {
+        await interaction.editReply({ content: `❌ Error: the repo ${repo} does not exist.` });
+        return;
+    }
 
     const summary = await gh.listBranches(repo);
     const title = `Branches in ${repo} (max ${max})`;
@@ -40,4 +46,4 @@ async function execute(interaction: ChatInputCommandInteraction) {
     await interaction.editReply({ content });
 }
 
-export const command: Command= { data, execute };
+export const command: SubCommand= { data, execute };

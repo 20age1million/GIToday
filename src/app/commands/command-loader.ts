@@ -44,6 +44,8 @@ import type {
 
 import type { Command, ExecuteFn, LoadedCommands} from "shared/types/command.js";
 
+import { Logger } from "infrastructure/log/log.js";
+
 const isCommandFile = (file: string) =>
   /\.(?:c|m)?js$|\.ts$/i.test(file) && !/\.d\.ts$/i.test(file);
 
@@ -109,15 +111,15 @@ async function listCommandFiles(baseDir: string): Promise<string[]> {
 
 function resolveCommandsDir(): string {
   // 1) 生产构建：dist/commands
-  const dist = path.resolve(process.cwd(), "dist", "commands");
+  const dist = path.resolve(process.cwd(), "dist", "app", "commands");
   if (existsSync(dist) && statSync(dist).isDirectory()) return dist;
 
   // 2) 开发直跑：src/commands
-  const src = path.resolve(process.cwd(), "src", "commands");
+  const src = path.resolve(process.cwd(), "src", "app", "commands");
   if (existsSync(src) && statSync(src).isDirectory()) return src;
 
   // 3) 兜底：当前目录下的 commands
-  const local = path.resolve(process.cwd(), "commands");
+  const local = path.resolve(process.cwd(), "app", "commands");
   return local;
 }
 
@@ -128,7 +130,7 @@ export async function loadAllCommands(): Promise<LoadedCommands> {
 
   const baseDir = resolveCommandsDir();
   if (!existsSync(baseDir)) {
-    console.warn(`[commands] Directory not exists ${baseDir}`);
+    Logger.error("LoadCommand", `Directory not exists ${baseDir}`);
     return { routes, definitions, loadedFiles };
   }
 
@@ -144,23 +146,23 @@ export async function loadAllCommands(): Promise<LoadedCommands> {
       const execute: ExecuteFn | undefined = command?.execute;
 
       if (!data?.name || typeof execute !== "function") {
-        console.warn(`[commands] Skipped, unmatched interface: ${file}`);
+        Logger.warn("Command", `Skipped, unmatched interface: ${file}`);
         continue;
       }
 
       if (typeof data.toJSON === "function") {
         definitions.push(data.toJSON() as RESTPostAPIApplicationCommandsJSONBody);
       } else {
-        console.warn(`[commands] Warning: ${file} does not have data.toJSON(); cannot register`);
+        Logger.warn("Command", `${file} does not have data.toJSON(); cannot register`);
       }
 
       routes.set(data.name, execute);
       loadedFiles.push(file);
     } catch (err) {
-      console.warn(`[commands] failed to load: ${file}`, err);
+      Logger.warn("Comamnd", `failed to load: ${file} \n${err}`);
     }
   }
 
-  console.log(`[commands] Loaded ${routes.size} commands; from ${loadedFiles.length} files.`);
+  Logger.log("Command", `Loaded ${routes.size} commands; from ${loadedFiles.length} files.`);
   return { routes, definitions, loadedFiles };
 }

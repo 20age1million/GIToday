@@ -12,7 +12,4 @@ async function execute(interaction: ChatInputCommandInteraction) {
     await interaction.reply("Hello, World!");
 }
 
-export const command: Command = {
-    data,
-    execute
-};
+export const command: Command = { data, execute };
