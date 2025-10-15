@@ -7,7 +7,7 @@
     "dev": "tsx src/index.ts --mode=dev",
     "register:guild": "node src/register.ts",
     "register:global": "node src/register.ts --global",
-    "build": "tsc",
+    "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
     "start": "node dist/index.js"
   },
   "keywords": [],
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.3.1",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   }

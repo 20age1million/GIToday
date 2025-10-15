@@ -27,7 +27,7 @@ RUN npm ci --omit=dev
 # 仅拷贝编译产物
 COPY --from=build /app/dist ./dist
 
-RUN mkdir -p /app/config
+# RUN mkdir -p /app/config
 
 # RUN node ./dist/init.js
 
