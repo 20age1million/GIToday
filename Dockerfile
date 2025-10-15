@@ -29,6 +29,8 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/scripts ./scripts
 RUN chmod +x scripts/entrypoint.sh
 
+ENTRYPOINT ["./scripts/entrypoint.sh"]
+
 # RUN mkdir -p /app/config
 
 # RUN node ./dist/init.js
