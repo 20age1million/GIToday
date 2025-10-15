@@ -10,7 +10,7 @@ RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
 # 如有其它需要的静态文件（例如命令注册脚本等），按需 COPY
-# COPY scripts ./scripts
+COPY scripts ./scripts
 
 # 编译 TS → dist
 RUN npm run build
@@ -26,6 +26,8 @@ RUN npm ci --omit=dev
 
 # 仅拷贝编译产物
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/scripts ./scripts
+RUN chmod +x scripts/entrypoint.sh
 
 # RUN mkdir -p /app/config
 
