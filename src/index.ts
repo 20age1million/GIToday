@@ -118,7 +118,7 @@ async function shutdownHandler(signal: string) {
 
 
 ////////////////////////////////////////////////////
-init();
+await init();
 
 process.once("SIGINT", shutdownHandler);
 process.once("SIGTERM", shutdownHandler);
