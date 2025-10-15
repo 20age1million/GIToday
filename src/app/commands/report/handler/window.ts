@@ -3,6 +3,7 @@ import { isISO8601String } from "core/time/time.js";
 import { Report } from "core/reports/report.js";
 import { Formatter } from "shared/formatters/formatter.js";
 import type { SubCommand } from "shared/types/command.js";
+import { ConvertAuth } from "core/people/convertAuth.js";
 
 
 const data = ((sub: SlashCommandSubcommandBuilder) =>
@@ -72,6 +73,8 @@ async function execute(interaction: ChatInputCommandInteraction) {
         await interaction.editReply("⚠️ No contributions found in the given time window.");
         return;
     }
+
+    summary = await (await ConvertAuth.create(interaction.client, interaction.guild!)).convertAuthAgg(summary);
 
     const contents = Formatter.leaderboard(summary, { title } );
 

@@ -3,6 +3,7 @@ import { relativeToWindowISO } from "core/time/time.js";
 import { Report } from "core/reports/report.js";
 import { Formatter } from "shared/formatters/formatter.js";
 import type { SubCommand } from "shared/types/command.js";
+import { ConvertAuth } from "core/people/convertAuth.js";
 
 const data = ((sub: SlashCommandSubcommandBuilder) => 
     sub
@@ -27,7 +28,9 @@ async function execute(interaction: ChatInputCommandInteraction) {
         return;
     }
 
-    const contents = Formatter.leaderboard(summary.summary, { title } );
+    const resultSummary = await (await ConvertAuth.create(interaction.client, interaction.guild!)).convertAuthAgg(summary.summary);
+
+    const contents = Formatter.leaderboard(resultSummary, { title } );
 
     await interaction.editReply({ content: "✅ Succeed!" });;
 

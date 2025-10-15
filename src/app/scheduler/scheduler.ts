@@ -29,14 +29,7 @@ class Scheduler {
         let summary = (await Report.collectOrgReport(guildID, relativeToWindowISO("1d"))).summary
 
         const converter = await ConvertAuth.create(client, await client.guilds.fetch(guildID) ?? undefined);
-        // map to same name
-        summary = await Promise.all(summary.map(async (aa: AuthorAggregate) => {
-            aa.authorKey = await converter.convertAuth(aa.authorKey);
-            return aa;
-        }));
-
-        summary = converter.mergeSameNamesInAuthAgg(summary);
-        summary = await converter.removeAuthAggByBlackList(summary);
+        summary = await converter.convertAuthAgg(summary);
 
         let message: string;
         const title = `🏆 Daily Leaderboard for ${orgName} - `;
