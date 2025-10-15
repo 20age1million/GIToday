@@ -1,6 +1,7 @@
 import { Logger } from "infrastructure/log/log.js";
 import { requireEnv } from "infrastructure/env/requireEnv.js";
 import { loadAllCommands } from "app/commands/command-loader.js";
+import { init } from "init.js";
 
 import {
     REST, 
@@ -117,6 +118,8 @@ async function shutdownHandler(signal: string) {
 
 
 ////////////////////////////////////////////////////
+init();
+
 process.once("SIGINT", shutdownHandler);
 process.once("SIGTERM", shutdownHandler);
 

@@ -23,8 +23,10 @@ async function ensureDir(dir: string) {
 
 /////////////////////////////////////////////////
 
-Logger.log("init config", "start bootstrap…");
-for (const dir of REQUIRED_DIRS) {
-    await ensureDir(dir);
+export async function init() {
+    Logger.log("init config", "start bootstrap…");
+    for (const dir of REQUIRED_DIRS) {
+        await ensureDir(dir);
+    }
+    Logger.log("init config", "done");
 }
-Logger.log("init config", "done");
