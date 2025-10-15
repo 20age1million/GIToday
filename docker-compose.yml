@@ -21,7 +21,7 @@ services:
     # ports: []  # 留空或直接不写
 
     # 运行命令（你的镜像里如果已设置 CMD 可不写）
-    command: ["node", "dist/index.js", "--mode=dev"]
+    command: ["./scripts/entrypoint.sh"]
 
     environment:
       GITHUB_TOKEN: ${GITHUB_TOKEN?required}
