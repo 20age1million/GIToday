@@ -9,7 +9,7 @@ import {
 const data = new SlashCommandBuilder().setName("hello").setDescription("Hello, World!");
 
 async function execute(interaction: ChatInputCommandInteraction) {
-    await interaction.reply("Hello, World!");
+    await interaction.reply("Ciallo～(∠・ω< )⌒☆");
 }
 
 export const command: Command = { data, execute };
