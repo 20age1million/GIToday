@@ -8,7 +8,7 @@ import { Logger } from "infrastructure/log/log.js";
 async function createReadyBot(): Promise<Client<true>> {
     const token = requireEnv("DISCORD_TOKEN");
     const client = new Client({
-        intents: [GatewayIntentBits.Guilds],
+        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
     });
 
     client.once(Events.ClientReady, () => {

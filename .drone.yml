@@ -114,6 +114,8 @@ steps:
         from_secret: DISCORD_GUILD_ID
       ROOT:
         from_secret: ROOT
+      OPENAI_API_KEY:
+        from_secret: OPENAI_API_KEY
 
       TAG: "latest"            # CHANGE to "${DRONE_COMMIT_SHA}" for pinned deploys
       COMPOSE_SUBDIR: ""       # CHANGE if your compose lives in a subfolder (e.g., "deploy")

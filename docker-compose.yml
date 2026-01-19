@@ -31,6 +31,7 @@ services:
       DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID?required}
       DISCORD_GUILD_ID: ${DISCORD_GUILD_ID?required}
       ROOT: ${ROOT?required}
+      OPENAI_API_KEY: ${OPENAI_API_KEY?required}
 
     # 日志滚动，避免 json-file 无限膨胀（也可在 daemon.json 里全局配置）
     # 参考：json-file logging driver 配置
