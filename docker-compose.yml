@@ -24,8 +24,9 @@ services:
     # command: ["./scripts/entrypoint.sh"]
 
     environment:
-      GITHUB_TOKEN: ${GITHUB_TOKEN?required}
-      GITHUB_ORG: ${GITHUB_ORG?required}
+      GITHUB_APP_CLIENT_ID: ${GITHUB_APP_CLIENT_ID?required}
+      GITHUB_APP_PRIVATE_KEY_BASE64: ${GITHUB_APP_PRIVATE_KEY_BASE64?required}
+      GITHUB_APP_INSTALLATION_ID: ${GITHUB_APP_INSTALLATION_ID?required}
       DISCORD_TOKEN: ${DISCORD_TOKEN?required}
       DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID?required}
       DISCORD_GUILD_ID: ${DISCORD_GUILD_ID?required}
