@@ -2,7 +2,7 @@ import { listOrgRepos } from "./repos.js";
 import { listBranches } from "./branches.js";
 import { listCommits } from "./commits.js";
 import { listMembers } from "./member.js";
-import { getOctokitForGuild } from "./clientFactory.js";
+import { getOctokit } from "./getOctokit.js";
 
 import { GuildInfo } from "infrastructure/db/guildInfo.js";
 
@@ -25,7 +25,7 @@ export class GitHub {
     ) {}
 
     public static async create(guildID: string): Promise<GitHub> {
-        const oct = await getOctokitForGuild(guildID);
+        const oct = await getOctokit();
         const org = (await GuildInfo.getGitInfo(guildID)).org;
         if (!org) {
             throw new Error(`GitHub.create - No organization configured for guild ${guildID}`);

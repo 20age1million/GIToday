@@ -93,7 +93,7 @@ async function commandHandler(interaction: Interaction) {
     try {
         await execute(interaction);   
     } catch (err) {
-        Logger.error(`command`, `${interaction.commandName} falied.`);
+        Logger.error(`command`, `${interaction.commandName} failed. ${err}`);
         const msg = "Command failed, please contact Benson.";
         // if current interaction is deferred or replied, 
         if (interaction.deferred || interaction.replied) {

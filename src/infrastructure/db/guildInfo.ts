@@ -91,7 +91,7 @@ export class GuildInfo {
     public static async infoComplete(guildID: string): Promise<boolean> {
         try {
             const gitInfo = await this.getGitInfo(guildID);
-            if (!gitInfo.platform || !gitInfo.authMethod || !gitInfo.key || !gitInfo.org) {
+            if (!gitInfo.org) {
                 return false;
             }
         } catch (error) {

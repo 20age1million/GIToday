@@ -85,3 +85,5 @@ Desktop.ini
 !.env.example
 
 config/
+
+local/
