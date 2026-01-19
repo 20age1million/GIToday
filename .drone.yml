@@ -100,10 +100,12 @@ steps:
         from_secret: GHCR_TOKEN
 
       # tokens specific for the bot
-      GITHUB_TOKEN:
-        from_secret: GITHUB_TOKEN
-      GITHUB_ORG:
-        from_secret: GITHUB_ORG
+      GITHUB_APP_CLIENT_ID:
+        from_secret: GITHUB_APP_CLIENT_ID
+      GITHUB_APP_PRIVATE_KEY_BASE64:
+        from_secret: GITHUB_APP_PRIVATE_KEY_BASE64
+      GITHUB_APP_INSTALLATION_ID:
+        from_secret: GITHUB_APP_INSTALLATION_ID
       DISCORD_TOKEN:
         from_secret: DISCORD_TOKEN
       DISCORD_CLIENT_ID:
