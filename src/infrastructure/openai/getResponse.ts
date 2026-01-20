@@ -8,7 +8,16 @@ export async function getResponse(messageContent: string): Promise<string> {
 
     const response = await client.responses.create({
         model: "gpt-5-nano",
-        input: messageContent,
+        input: [
+            {
+                "role": "system",
+                content: "You are a Discord bot that reports GitHub stat about a GitHub organization, your reply must within 2000 characters."
+            },
+            {
+                "role": "user",
+                content: messageContent
+            }
+        ]
     });
 
     return response.output_text;
